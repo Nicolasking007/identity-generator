@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { CopyIcon, RefreshCwIcon as RefreshIcon } from "lucide-react"
+import { CopyIcon, RefreshCwIcon as RefreshIcon, DownloadIcon } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { faker } from "@faker-js/faker/locale/zh_CN"
 
@@ -160,7 +160,7 @@ export default function IdentityGenerator() {
       selectedDistrict ||
       (cityCode && districtMap[provinceCode]?.[cityCode])?.length > 0
         ? faker.helpers.arrayElement(districtMap[provinceCode]?.[cityCode] || [])
-        : "未知区县"
+        : ""
 
     return Array.from({ length: count }, (_, i) => {
       const birthDate = faker.date.between({ from: "1940-01-01", to: "2005-12-31" })
@@ -279,31 +279,52 @@ export default function IdentityGenerator() {
     setIdentities(generateMockData(count))
   }
 
-  // function handleProvinceChange(e: React.ChangeEvent<HTMLSelectElement>) {
-  //   const province = e.target.value
-  //   setSelectedProvince(province)
-  //   setSelectedCity("")
-  //   setSelectedDistrict("")
-  // }
+  function handleDownloadJSON() {
+    const jsonData = JSON.stringify(identities, null, 2) // 格式化 JSON 数据
+    const blob = new Blob([jsonData], { type: "application/json" }) // 创建 Blob 对象
+    const url = URL.createObjectURL(blob) // 创建下载链接
+    const link = document.createElement("a")
+    link.href = url
+    link.download = "identities.json" // 设置下载文件名
+    link.click()
+    URL.revokeObjectURL(url) // 释放 URL 对象
+    toast({
+      description: "JSON 文件已下载",
+      duration: 2000,
+    })
+  }
 
-  // function handleCityChange(e: React.ChangeEvent<HTMLSelectElement>) {
-  //   const city = e.target.value
-  //   setSelectedCity(city)
-  //   setSelectedDistrict("")
-  // }
+  function handleProvinceChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const province = e.target.value
+    setSelectedProvince(province)
+    setSelectedCity("")
+    setSelectedDistrict("")
+  }
 
-  // function handleDistrictChange(e: React.ChangeEvent<HTMLSelectElement>) {
-  //   setSelectedDistrict(e.target.value)
-  // }
+  function handleCityChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const city = e.target.value
+    setSelectedCity(city)
+    setSelectedDistrict("")
+  }
+
+  function handleDistrictChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    setSelectedDistrict(e.target.value)
+  }
 
   return (
     <div className="container mx-auto py-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">身份信息生成器</h1>
-        <Button onClick={handleRefresh} variant="outline">
-          <RefreshIcon className="mr-2 h-4 w-4" />
-          重新生成
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={handleRefresh} variant="outline">
+            <RefreshIcon className="mr-2 h-4 w-4" />
+            重新生成
+          </Button>
+          <Button onClick={handleDownloadJSON} variant="outline">
+            <DownloadIcon className="mr-2 h-4 w-4" />
+            下载 JSON
+          </Button>
+        </div>
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -318,6 +339,56 @@ export default function IdentityGenerator() {
             max="100"
           />
         </div>
+        <div>
+          <Label htmlFor="province">省份</Label>
+          <select
+            id="province"
+            value={selectedProvince}
+            onChange={handleProvinceChange}
+            className="w-full p-2 border rounded"
+          >
+            {Object.entries(provinceMap).map(([code, name]) => (
+              <option key={code} value={code}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <Label htmlFor="city">城市</Label>
+          <select
+            id="city"
+            value={selectedCity}
+            onChange={handleCityChange}
+            className="w-full p-2 border rounded"
+            disabled={!selectedProvince}
+          >
+            {selectedProvince &&
+              Object.entries(provinceCityMap[selectedProvince]).map(([code, name]) => (
+                <option key={code} value={code}>
+                  {name}
+                </option>
+              ))}
+          </select>
+        </div>
+        {/* <div>
+          <Label htmlFor="district">区县</Label>
+          <select
+            id="district"
+            value={selectedDistrict}
+            onChange={handleDistrictChange}
+            className="w-full p-2 border rounded"
+            disabled={!selectedCity}
+          >
+            {selectedProvince &&
+              selectedCity &&
+              districtMap[selectedProvince]?.[selectedCity]?.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+          </select>
+        </div> */}
       </div>
 
       <div className="rounded-md border overflow-x-auto">
@@ -332,6 +403,7 @@ export default function IdentityGenerator() {
               <TableHead>生肖</TableHead>
               <TableHead>星座</TableHead>
               <TableHead>年龄</TableHead>
+              <TableHead>地区</TableHead>
               <TableHead>手机号</TableHead>
               <TableHead>银行卡号</TableHead>
               <TableHead>开户行</TableHead>
@@ -367,6 +439,7 @@ export default function IdentityGenerator() {
                 <TableCell>{identity.zodiac}</TableCell>
                 <TableCell>{identity.constellation}</TableCell>
                 <TableCell>{identity.age}</TableCell>
+                <TableCell>{identity.region}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     {identity.phone}
