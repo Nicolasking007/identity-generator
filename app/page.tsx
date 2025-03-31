@@ -10,6 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { CopyIcon, RefreshCwIcon as RefreshIcon, DownloadIcon } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { faker } from "@faker-js/faker/locale/zh_CN"
+import { UserIcon, PaletteIcon } from "lucide-react"
+import Link from "next/link"
 
 interface Identity {
   id: number
@@ -158,7 +160,7 @@ export default function IdentityGenerator() {
     const cityCode = selectedCity || (provinceCityMapEntry && faker.helpers.objectKey(provinceCityMapEntry))
     const districtName =
       selectedDistrict ||
-      (cityCode && districtMap[provinceCode]?.[cityCode])?.length > 0
+        (cityCode && districtMap[provinceCode]?.[cityCode])?.length > 0
         ? faker.helpers.arrayElement(districtMap[provinceCode]?.[cityCode] || [])
         : ""
 
@@ -313,159 +315,165 @@ export default function IdentityGenerator() {
 
   return (
     <div className="container mx-auto py-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">身份信息生成器</h1>
-        <div className="flex items-center gap-2">
-          <Button onClick={handleRefresh} variant="outline">
-            <RefreshIcon className="mr-2 h-4 w-4" />
-            重新生成
-          </Button>
-          <Button onClick={handleDownloadJSON} variant="outline">
-            <DownloadIcon className="mr-2 h-4 w-4" />
-            下载 JSON
-          </Button>
-        </div>
+    <div className="flex gap-6">
+      {/* 左侧导航栏 */}
+      <div className="w-[200px]">
+        <nav className="space-y-1">
+          <Link
+            href="/"
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-900 bg-gray-100 transition-all"
+          >
+            <UserIcon className="h-4 w-4" />
+            身份信息生成器
+          </Link>
+          <Link
+            href="/colors"
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 hover:bg-gray-100"
+          >
+            <PaletteIcon className="h-4 w-4" />
+            常用色卡
+          </Link>
+        </nav>
       </div>
+        {/* 右侧内容区域 */}
+        <div className="flex-1">
+          <div className="mb-6 flex items-center justify-between">
+            <h1 className="text-2xl font-bold">身份信息生成器</h1>
+            <div className="flex items-center gap-2">
+              <Button onClick={handleRefresh} variant="outline">
+                <RefreshIcon className="mr-2 h-4 w-4" />
+                重新生成
+              </Button>
+              <Button onClick={handleDownloadJSON} variant="outline">
+                <DownloadIcon className="mr-2 h-4 w-4" />
+                下载 JSON
+              </Button>
+            </div>
+          </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div>
-          <Label htmlFor="count">生成数量</Label>
-          <Input
-            id="count"
-            type="number"
-            value={count}
-            onChange={(e) => setCount(Number(e.target.value))}
-            min="1"
-            max="100"
-          />
-        </div>
-        <div>
-          <Label htmlFor="province">省份</Label>
-          <select
-            id="province"
-            value={selectedProvince}
-            onChange={handleProvinceChange}
-            className="w-full p-2 border rounded"
-          >
-            {Object.entries(provinceMap).map(([code, name]) => (
-              <option key={code} value={code}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <Label htmlFor="city">城市</Label>
-          <select
-            id="city"
-            value={selectedCity}
-            onChange={handleCityChange}
-            className="w-full p-2 border rounded"
-            disabled={!selectedProvince}
-          >
-            {selectedProvince &&
-              Object.entries(provinceCityMap[selectedProvince]).map(([code, name]) => (
-                <option key={code} value={code}>
-                  {name}
-                </option>
-              ))}
-          </select>
-        </div>
-        {/* <div>
-          <Label htmlFor="district">区县</Label>
-          <select
-            id="district"
-            value={selectedDistrict}
-            onChange={handleDistrictChange}
-            className="w-full p-2 border rounded"
-            disabled={!selectedCity}
-          >
-            {selectedProvince &&
-              selectedCity &&
-              districtMap[selectedProvince]?.[selectedCity]?.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-          </select>
-        </div> */}
-      </div>
+          <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div>
+              <Label htmlFor="count">生成数量</Label>
+              <Input
+                id="count"
+                type="number"
+                value={count}
+                onChange={(e) => setCount(Number(e.target.value))}
+                min="1"
+                max="100"
+              />
+            </div>
+            <div>
+              <Label htmlFor="province">省份</Label>
+              <select
+                id="province"
+                value={selectedProvince}
+                onChange={handleProvinceChange}
+                className="w-full p-2 border rounded"
+              >
+                {Object.entries(provinceMap).map(([code, name]) => (
+                  <option key={code} value={code}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="city">城市</Label>
+              <select
+                id="city"
+                value={selectedCity}
+                onChange={handleCityChange}
+                className="w-full p-2 border rounded"
+                disabled={!selectedProvince}
+              >
+                {selectedProvince &&
+                  Object.entries(provinceCityMap[selectedProvince]).map(([code, name]) => (
+                    <option key={code} value={code}>
+                      {name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          </div>
 
-      <div className="rounded-md border overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>序号</TableHead>
-              <TableHead>姓名</TableHead>
-              <TableHead>性别</TableHead>
-              <TableHead>身份证号</TableHead>
-              <TableHead>出生日期</TableHead>
-              <TableHead>生肖</TableHead>
-              <TableHead>星座</TableHead>
-              <TableHead>年龄</TableHead>
-              <TableHead>地区</TableHead>
-              <TableHead>手机号</TableHead>
-              <TableHead>银行卡号</TableHead>
-              <TableHead>开户行</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {identities.map((identity) => (
-              <TableRow key={identity.id}>
-                <TableCell>{identity.id}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {identity.name}
-                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(identity.name)}>
-                      <CopyIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-                <TableCell>{identity.gender}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {identity.idNumber}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={() => handleCopy(identity.idNumber)}
-                    >
-                      <CopyIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-                <TableCell>{identity.birthDate}</TableCell>
-                <TableCell>{identity.zodiac}</TableCell>
-                <TableCell>{identity.constellation}</TableCell>
-                <TableCell>{identity.age}</TableCell>
-                <TableCell>{identity.region}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {identity.phone}
-                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(identity.phone)}>
-                      <CopyIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {identity.bankCard}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={() => handleCopy(identity.bankCard)}
-                    >
-                      <CopyIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-                <TableCell>{identity.bank}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+          <div className="rounded-md border overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>序号</TableHead>
+                  <TableHead>姓名</TableHead>
+                  <TableHead>性别</TableHead>
+                  <TableHead>身份证号</TableHead>
+                  <TableHead>出生日期</TableHead>
+                  <TableHead>生肖</TableHead>
+                  <TableHead>星座</TableHead>
+                  <TableHead>年龄</TableHead>
+                  <TableHead>地区</TableHead>
+                  <TableHead>手机号</TableHead>
+                  <TableHead>银行卡号</TableHead>
+                  <TableHead>开户行</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {identities.map((identity) => (
+                  <TableRow key={identity.id}>
+                    <TableCell>{identity.id}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {identity.name}
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(identity.name)}>
+                          <CopyIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell>{identity.gender}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {identity.idNumber}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => handleCopy(identity.idNumber)}
+                        >
+                          <CopyIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell>{identity.birthDate}</TableCell>
+                    <TableCell>{identity.zodiac}</TableCell>
+                    <TableCell>{identity.constellation}</TableCell>
+                    <TableCell>{identity.age}</TableCell>
+                    <TableCell>{identity.region}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {identity.phone}
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(identity.phone)}>
+                          <CopyIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {identity.bankCard}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => handleCopy(identity.bankCard)}
+                        >
+                          <CopyIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell>{identity.bank}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </div>
     </div>
   )
