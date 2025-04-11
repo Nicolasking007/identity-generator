@@ -1,6 +1,7 @@
 import type React from "react"
 import { Toaster } from "@/components/toaster"
 import './globals.css'
+import { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: '常用工具生成器',

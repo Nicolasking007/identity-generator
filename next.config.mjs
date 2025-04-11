@@ -21,6 +21,7 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  output: 'standalone',  // 添加这行启用静态导出
 }
 
 mergeConfig(nextConfig, userConfig)

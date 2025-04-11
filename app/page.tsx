@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { CopyIcon, RefreshCwIcon as RefreshIcon, DownloadIcon } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { faker } from "@faker-js/faker/locale/zh_CN"
-import { UserIcon, PaletteIcon } from "lucide-react"
+import { UserIcon, PaletteIcon, KeyIcon } from "lucide-react"
 import Link from "next/link"
 
 interface Identity {
@@ -66,7 +66,7 @@ const provinceMap: { [key: string]: string } = {
   "33": "浙江省",
 }
 
-const districtMap: { [key: string]: { [key: string]: string[] } } = {
+const districtMap: Record<string, Record<string, string[]>> = {
   "11": {
     "01": [
       "东城区",
@@ -157,7 +157,14 @@ export default function IdentityGenerator() {
   function generateMockData(count: number): Identity[] {
     const provinceCode = selectedProvince || "11" // 默认值
     const provinceCityMapEntry = provinceCityMap[provinceCode]
-    const cityCode = selectedCity || (provinceCityMapEntry && faker.helpers.objectKey(provinceCityMapEntry))
+    // Fix: Convert array to object with index keys
+    const cityCode = selectedCity || (provinceCityMapEntry && 
+        faker.helpers.objectKey(
+            provinceCityMapEntry.reduce((obj, city, index) => {
+                obj[index] = city;
+                return obj;
+            }, {} as Record<string, string>)
+        ))
     const districtName =
       selectedDistrict ||
         (cityCode && districtMap[provinceCode]?.[cityCode])?.length > 0
@@ -180,7 +187,8 @@ export default function IdentityGenerator() {
         zodiac: getChineseZodiac(birthDate),
         constellation: getConstellation(birthDate),
         age: new Date().getFullYear() - birthDate.getFullYear(),
-        region: `${provinceMap[provinceCode]}${provinceCityMapEntry ? provinceCityMapEntry[cityCode || "01"] : ""}${districtName}`,
+        region: `${provinceMap[provinceCode]}${provinceCityMapEntry ? 
+            provinceCityMapEntry[Number(cityCode || "01")] : ""}${districtName}`,
         areaCode: provinceCode + faker.number.int({ min: 1000, max: 9999 }).toString(),
         phone: generatePhoneNumber(),
         bankCard: bankCard,
@@ -194,9 +202,9 @@ export default function IdentityGenerator() {
     const month = (birthDate.getMonth() + 1).toString().padStart(2, "0")
     const day = birthDate.getDate().toString().padStart(2, "0")
     const districtCode =
-      Object.keys(districtMap[provinceCode]?.[cityCode || "01"] || {}).find(
-        (key) => districtMap[provinceCode]?.[cityCode || "01"][key] === districtName,
-      ) || "01"
+      Object.entries(districtMap[provinceCode]?.[cityCode || "01"] || {}).find(
+        ([_, names]) => names.includes(districtName)
+      )?.[0] || "01"
     const random = faker.number.int({ min: 10, max: 99 }).toString()
     const gender = faker.number.int({ min: 0, max: 9 }).toString()
     const checksum = faker.number.int({ min: 0, max: 9 }).toString()
@@ -315,26 +323,33 @@ export default function IdentityGenerator() {
 
   return (
     <div className="container mx-auto py-6">
-    <div className="flex gap-6">
-      {/* 左侧导航栏 */}
-      <div className="w-[200px]">
-        <nav className="space-y-1">
-          <Link
-            href="/"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-900 bg-gray-100 transition-all"
-          >
-            <UserIcon className="h-4 w-4" />
-            身份信息生成器
-          </Link>
-          <Link
-            href="/colors"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 hover:bg-gray-100"
-          >
-            <PaletteIcon className="h-4 w-4" />
-            常用色卡
-          </Link>
-        </nav>
-      </div>
+      <div className="flex gap-6">
+        {/* 左侧导航栏 */}
+        <div className="w-[200px]">
+          <nav className="space-y-1">
+            <Link
+              href="/"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 hover:bg-gray-100"
+            >
+              <UserIcon className="h-4 w-4" />
+              身份信息生成器
+            </Link>
+            <Link
+              href="/colors"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 hover:bg-gray-100"
+            >
+              <PaletteIcon className="h-4 w-4" />
+              常用色卡
+            </Link>
+            <Link
+              href="/token-checker"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 hover:bg-gray-100"
+            >
+              <KeyIcon className="h-4 w-4" />
+              Token校验
+            </Link>
+          </nav>
+        </div>
         {/* 右侧内容区域 */}
         <div className="flex-1">
           <div className="mb-6 flex items-center justify-between">

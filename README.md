@@ -3,3 +3,13 @@
 
 
 ![](./public/main.png)
+
+
+```
+docker build -t identity-generator .
+```
+
+
+```
+docker run -p 3000:80 identity-generator
+```
