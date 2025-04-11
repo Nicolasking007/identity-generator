@@ -10,6 +10,12 @@ docker build -t identity-generator .
 ```
 
 
+- docker 启动
 ```
 docker run -p 3000:80 identity-generator
+```
+
+- docker-compose 启动
+```
+docker-compose up -d --build
 ```
