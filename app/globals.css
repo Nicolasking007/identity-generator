@@ -92,3 +92,13 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* 在文件末尾添加 */
+@layer components {
+  .nav-item {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  .nav-item:hover {
+    @apply transform scale-105;
+  }
+}

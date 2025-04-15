@@ -4,9 +4,13 @@ import { useToast } from "@/components/ui/use-toast"
 import { CopyIcon, UserIcon, PaletteIcon, KeyIcon } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { usePathname } from 'next/navigation'
+import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu"
+
 
 export default function ColorsPage() {
   const { toast } = useToast()
+  const pathname = usePathname()
   const [searchTerm, setSearchTerm] = useState("")
 
   function handleCopy(text: string) {
@@ -213,27 +217,53 @@ export default function ColorsPage() {
         {/* 左侧导航栏 */}
         <div className="w-[200px]">
           <nav className="space-y-1">
-            <Link
-              href="/"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 hover:bg-gray-100"
-            >
-              <UserIcon className="h-4 w-4" />
-              身份信息生成器
-            </Link>
-            <Link
-              href="/colors"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 hover:bg-gray-100"
-            >
-              <PaletteIcon className="h-4 w-4" />
-              常用色卡
-            </Link>
-            <Link
-              href="/token-checker"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 hover:bg-gray-100"
-            >
-              <KeyIcon className="h-4 w-4" />
-              Token校验
-            </Link>
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
+                    <UserIcon className="h-4 w-4 mr-2" />
+                    工具
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid gap-3 p-4 w-[200px]">
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href="/"
+                          className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${pathname === '/' ? 'bg-accent text-accent-foreground' : 'hover:bg-accent hover:text-accent-foreground'}`}
+                        >
+                          <div className="flex items-center">
+                            <UserIcon className="h-4 w-4 mr-2" />
+                            身份信息生成器
+                          </div>
+                        </Link>
+                      </NavigationMenuLink>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href="/colors"
+                          className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${pathname === '/colors' ? 'bg-accent text-accent-foreground' : 'hover:bg-accent hover:text-accent-foreground'}`}
+                        >
+                          <div className="flex items-center">
+                            <PaletteIcon className="h-4 w-4 mr-2" />
+                            常用色卡
+                          </div>
+                        </Link>
+                      </NavigationMenuLink>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          href="/token-checker"
+                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent"
+                        >
+                          <div className="flex items-center">
+                            <KeyIcon className="h-4 w-4 mr-2" />
+                            Token校验
+                          </div>
+                        </Link>
+                      </NavigationMenuLink>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
           </nav>
         </div>
 

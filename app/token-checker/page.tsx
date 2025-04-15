@@ -9,6 +9,8 @@ import { UploadIcon, CheckIcon, XIcon, UserIcon, PaletteIcon, KeyIcon } from "lu
 import Link from "next/link"
 import { usePathname } from 'next/navigation'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink, navigationMenuTriggerStyle } from "@/components/ui/navigation-menu"
+
 
 interface TokenResult {
     token: string
@@ -17,14 +19,14 @@ interface TokenResult {
 }
 
 interface Environment {
-  name: string
-  apiUrl: string
+    name: string
+    apiUrl: string
 }
 
 const environments: Environment[] = [
-  { name: "测试环境", apiUrl: "/api/test" },
-  { name: "预生产环境", apiUrl: "/api/beta" },
-  { name: "生产环境", apiUrl: "/api/prod" }
+    { name: "测试环境", apiUrl: "/api/test" },
+    { name: "预生产环境", apiUrl: "/api/beta" },
+    { name: "生产环境", apiUrl: "/api/prod" }
 ]
 
 export default function TokenChecker() {
@@ -41,7 +43,7 @@ export default function TokenChecker() {
             toast({ description: "请输入token", variant: "destructive" })
             return
         }
-        
+
         // 添加格式校验
         if (!isValidTokenFormat(token)) {
             toast({ description: "Token格式无效", variant: "destructive" })
@@ -62,7 +64,7 @@ export default function TokenChecker() {
     const parseCSV = (file: File): Promise<string[]> => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader()
-            
+
             // 添加错误处理
             reader.onerror = () => {
                 toast({
@@ -87,7 +89,7 @@ export default function TokenChecker() {
                         // 尝试用多种分隔符分割
                         const separators = ['\t', ',', ';']
                         let columns: string[] = []
-                        
+
                         for (const sep of separators) {
                             columns = cleanLine.split(sep)
                             if (columns.length > 1) break
@@ -197,27 +199,53 @@ export default function TokenChecker() {
                 {/* 左侧导航栏 */}
                 <div className="w-[200px]">
                     <nav className="space-y-1">
-                        <Link
-                            href="/"
-                            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 hover:bg-gray-100"
-                        >
-                            <UserIcon className="h-4 w-4" />
-                            身份信息生成器
-                        </Link>
-                        <Link
-                            href="/colors"
-                            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 hover:bg-gray-100"
-                        >
-                            <PaletteIcon className="h-4 w-4" />
-                            常用色卡
-                        </Link>
-                        <Link
-                            href="/token-checker"
-                            className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 hover:bg-gray-100"
-                        >
-                            <KeyIcon className="h-4 w-4" />
-                            Token校验
-                        </Link>
+                        <NavigationMenu>
+                            <NavigationMenuList>
+                                <NavigationMenuItem>
+                                    <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
+                                        <UserIcon className="h-4 w-4 mr-2" />
+                                        工具
+                                    </NavigationMenuTrigger>
+                                    <NavigationMenuContent>
+                                        <ul className="grid gap-3 p-4 w-[200px]">
+                                            <NavigationMenuLink asChild>
+                                                <Link
+                                                    href="/"
+                                                    className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${pathname === '/' ? 'bg-accent text-accent-foreground' : 'hover:bg-accent hover:text-accent-foreground'}`}
+                                                >
+                                                    <div className="flex items-center">
+                                                        <UserIcon className="h-4 w-4 mr-2" />
+                                                        身份信息生成器
+                                                    </div>
+                                                </Link>
+                                            </NavigationMenuLink>
+                                            <NavigationMenuLink asChild>
+                                                <Link
+                                                    href="/colors"
+                                                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent"
+                                                >
+                                                    <div className="flex items-center">
+                                                        <PaletteIcon className="h-4 w-4 mr-2" />
+                                                        常用色卡
+                                                    </div>
+                                                </Link>
+                                            </NavigationMenuLink>
+                                            <NavigationMenuLink asChild>
+                                                <Link
+                                                    href="/token-checker"
+                                                    className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${pathname === '/token-checker' ? 'bg-accent text-accent-foreground' : 'hover:bg-accent hover:text-accent-foreground'}`}
+                                                >
+                                                    <div className="flex items-center">
+                                                        <KeyIcon className="h-4 w-4 mr-2" />
+                                                        Token校验
+                                                    </div>
+                                                </Link>
+                                            </NavigationMenuLink>
+                                        </ul>
+                                    </NavigationMenuContent>
+                                </NavigationMenuItem>
+                            </NavigationMenuList>
+                        </NavigationMenu>
                     </nav>
                 </div>
 
@@ -225,7 +253,7 @@ export default function TokenChecker() {
                 <div className="flex-1 space-y-6">
                     <div className="flex justify-between items-center">
                         <h1 className="text-2xl font-bold">Token有效性校验</h1>
-                        <Select 
+                        <Select
                             value={currentEnv.name}
                             onValueChange={(value) => {
                                 const env = environments.find(e => e.name === value)
@@ -244,7 +272,7 @@ export default function TokenChecker() {
                             </SelectContent>
                         </Select>
                     </div>
-                    
+
                     {/* 单个token输入区域 */}
                     <div className="flex gap-2">
                         <Input
